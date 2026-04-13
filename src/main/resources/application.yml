@@ -1,0 +1,12 @@
+spring:
+  config:
+    import: optional:dotenv
+  application:
+    name: spring-ai-demo
+  ai:
+    ollama:
+      base-url: http://localhost:11434
+      chat:
+        model: tinyllama:latest
+        options:
+          temperature: 0.0
