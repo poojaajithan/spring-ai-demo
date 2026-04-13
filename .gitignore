@@ -32,5 +32,10 @@ build/
 ### VS Code ###
 .vscode/
 
+# OS and editor artifacts
+.DS_Store
+*.log
+*.swp
+
 # Environment variable file
 .env
