@@ -1,11 +1,10 @@
 package com.dev.ai.labs.spring_ai_demo.services;
 
+import com.dev.ai.labs.spring_ai_demo.BaseTestClass;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class AIServiceImplTest {
+class AIServiceImplTest extends BaseTestClass {
 
     @Autowired
     private AIServiceImpl aiService;
