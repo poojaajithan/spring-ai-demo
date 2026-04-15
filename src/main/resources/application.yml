@@ -4,6 +4,10 @@ spring:
   application:
     name: spring-ai-demo
   ai:
+    vectorstore:
+      vector-store-path: data/vector-store.json
+      documents-to-load:
+        - classpath:top_popular_movies.csv
     ollama:
       base-url: http://localhost:11434
       chat:
