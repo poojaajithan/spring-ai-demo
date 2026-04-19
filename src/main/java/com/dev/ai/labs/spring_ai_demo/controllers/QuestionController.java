@@ -28,4 +28,9 @@ public class QuestionController {
     public Answer getCapitalWithInfo(@RequestBody GetCapitalRequest request) {
         return aiService.getCapitalWithInfo(request);
     }
+
+    @PostMapping("/rag")
+    public Answer getAnswerWithRAG(@RequestBody Question question) {
+        return aiService.getAnswerWithRAG(question);
+    }
 }

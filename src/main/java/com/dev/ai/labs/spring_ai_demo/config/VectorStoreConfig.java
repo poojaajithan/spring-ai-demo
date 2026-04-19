@@ -9,12 +9,14 @@ import org.springframework.ai.reader.tika.TikaDocumentReader;
 import org.springframework.ai.transformer.splitter.TextSplitter;
 import org.springframework.ai.transformer.splitter.TokenTextSplitter;
 import org.springframework.ai.vectorstore.SimpleVectorStore;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Configuration
+@EnableConfigurationProperties(VectorStoreProperties.class)
 public class VectorStoreConfig {
 
     @Bean
@@ -33,7 +35,7 @@ public class VectorStoreConfig {
             properties.getDocumentsToLoad().forEach(document -> {
                 TikaDocumentReader reader = new TikaDocumentReader(document);
                 List<Document> docs = reader.get();
-                TextSplitter textSplitter = TokenTextSplitter.builder().build();
+                TextSplitter textSplitter = TokenTextSplitter.builder().withChunkSize(512).build();
                 List<Document> splitDocs = textSplitter.apply(docs);        
                 simpleVectorStore.add(splitDocs);
             });

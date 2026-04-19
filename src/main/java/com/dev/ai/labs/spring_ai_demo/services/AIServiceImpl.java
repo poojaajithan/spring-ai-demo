@@ -2,16 +2,21 @@ package com.dev.ai.labs.spring_ai_demo.services;
 
 import com.dev.ai.labs.spring_ai_demo.model.Answer;
 import com.dev.ai.labs.spring_ai_demo.model.GetCapitalRequest;
+import com.dev.ai.labs.spring_ai_demo.model.Question;
 
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
+import org.springframework.ai.document.Document;
+import org.springframework.ai.vectorstore.SearchRequest;
+import org.springframework.ai.vectorstore.SimpleVectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.json.JsonParseException;
@@ -26,9 +31,15 @@ public class AIServiceImpl implements AIService {
     @Autowired
     private ObjectMapper objectMapper;
 
-    public AIServiceImpl(ChatModel chatModel) {
+    final SimpleVectorStore vectorStore;
+
+    public AIServiceImpl(ChatModel chatModel, SimpleVectorStore vectorStore) {
         this.chatModel = chatModel;
+        this.vectorStore = vectorStore;
     }
+
+    @Value("classpath:templates/rag-prompt-template.st")
+    private Resource ragPromptTemplate;
 
     @Override
     public String getAnswer(String question) {
@@ -67,5 +78,27 @@ public class AIServiceImpl implements AIService {
         ChatResponse response = chatModel.call(prompt);
         String info = response.getResult().getOutput().getText().trim();
         return new Answer(info);
+    }
+
+    public Answer getAnswerWithRAG(Question question) {
+        List<Document> retrievedDocs = vectorStore.similaritySearch(
+            SearchRequest.builder()
+                .query(question.question())
+                .topK(5)
+                .build()
+        );
+
+        List<String> retrievedTexts = retrievedDocs.stream()
+            .map(Document::getText)
+            .toList();
+
+        PromptTemplate promptTemplate = new PromptTemplate(ragPromptTemplate);
+        Prompt prompt = promptTemplate.create(Map.of(
+            "input", question.question(),
+            "documents", String.join("\n", retrievedTexts)
+        ));
+        ChatResponse response = chatModel.call(prompt);
+        String answer = response.getResult().getOutput().getText().trim();
+        return new Answer(answer);
     }
 }
